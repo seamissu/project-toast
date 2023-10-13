@@ -3,12 +3,32 @@ import React from 'react';
 import Button from '../Button';
 
 import styles from './ToastPlayground.module.css';
+import ToastShelf from '../ToastShelf/ToastShelf';
 
 const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error'];
 
 function ToastPlayground() {
   const [message, setMessage] = React.useState('');
   const [variant, setVariant] = React.useState('notice');
+  const [toasts, setToasts] = React.useState([]);
+
+  // toasts = [{message: 'I'm a message', variant: 'notice', id: },  ...   ]
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const newToast = { message, variant, id: crypto.randomUUID() };
+    const nextToast = [...toasts, newToast];
+    setToasts(nextToast);
+
+    setMessage('');
+    setVariant('notice');
+  }
+
+  function handleDismiss(id) {
+    const nextToasts = toasts.filter((toast) => toast.id !== id);
+    setToasts(nextToasts);
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -17,7 +37,17 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      <div className={styles.controlsWrapper}>
+      <ToastShelf
+        data={toasts}
+        toasts={toasts}
+        setToasts={setToasts}
+        handleDismiss={handleDismiss}
+      />
+
+      <form
+        className={styles.controlsWrapper}
+        onSubmit={handleSubmit}
+      >
         <div className={styles.row}>
           <label
             htmlFor="message"
@@ -69,7 +99,7 @@ function ToastPlayground() {
             <Button>Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
